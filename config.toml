@@ -1,0 +1,25 @@
+[general]
+
+[[sources]]
+type = "rssfeed"
+name = "reddit news"
+[sources.options]
+url = "https://www.reddit.com/r/news.rss"
+
+[[sources]]
+type = "textfile"
+name = "The configuration"
+[sources.options]
+filepath = "config.toml"
+
+[[sources]]
+name  = "SeaTac International Airport weather report"
+type = "weather"
+[sources.options]
+station  = "KSEA"
+
+[[sources]]
+name = "fortune"
+type = "command"
+[sources.options]
+command = "fortune"
