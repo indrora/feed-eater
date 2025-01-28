@@ -1,4 +1,4 @@
-package tty
+package io
 
 import (
 	"io"
@@ -22,7 +22,6 @@ func NewTTYConverter(w io.Writer) *TTYConverter {
 
 func (t *TTYConverter) initDefaultMappings() {
 	t.replacements = map[rune]string{
-		'@':  "AT",
 		'\\': "/",
 		'[':  "(",
 		']':  ")",
@@ -36,13 +35,12 @@ func (t *TTYConverter) initDefaultMappings() {
 		'™':  "(TM)",
 		'•':  "*",
 		'…':  "...",
-		'"':  "\"",
 		'\'': "'",
 		'—':  "--",
-		'–':  "-",
 		'¡':  "!",
 		'¿':  "?",
-		'☎':  "\a", // Bell character
+		'\n': "\n",
+		'\r': "\r",
 	}
 }
 

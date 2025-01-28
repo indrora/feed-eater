@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	fio "github.com/indrora/feed-eater/io"
 	"github.com/indrora/feed-eater/sources"
 	"go.bug.st/serial"
 )
@@ -21,9 +22,12 @@ type Config struct {
 type GeneralConfig struct {
 	Slow       bool `toml:"slow"`
 	SpeedLimit int  `toml:"speed_limit"`
+	Loop       bool `toml:"loop"`
+	Shuffle    bool `toml:"shuffle"`
 }
 
 type Source struct {
+	Inhibit bool                `toml:"ignore"`
 	Type    string              `toml:"type"`
 	Name    string              `toml:"name"`
 	Options map[string]string   `toml:"options"`
@@ -31,24 +35,10 @@ type Source struct {
 }
 
 type OutputConfig struct {
-	Type   string            `toml:"type"` // "serial", "stdio", "fifo"
-	Device string            `toml:"device"`
-	Mode   string            `toml:"mode"`
-	Params map[string]string `toml:"params"`
-}
-
-type stdioReadWriteCloser struct{}
-
-func (s *stdioReadWriteCloser) Read(p []byte) (n int, err error) {
-	return os.Stdin.Read(p)
-}
-
-func (s *stdioReadWriteCloser) Write(p []byte) (n int, err error) {
-	return os.Stdout.Write(p)
-}
-
-func (s *stdioReadWriteCloser) Close() error {
-	return nil
+	Type      string `toml:"type"` // "serial", "stdio", "fifo"
+	Device    string `toml:"device"`
+	Mode      string `toml:"mode"`
+	FilterTTY bool   `toml:"filter_tty"`
 }
 
 func parseSerialMode(mode string) (serial.Mode, error) {
@@ -108,6 +98,10 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
+	if config.Output.Type == "" {
+		config.Output.Type = "stdio"
+	}
+
 	for i, source := range config.Sources {
 		implSource, err := sources.NewSource(source.Type, source.Options)
 		if err != nil {
@@ -129,7 +123,7 @@ func (c *Config) GetOutput() (io.ReadWriteCloser, error) {
 		return serial.Open(c.Output.Device, &mode)
 
 	case "stdio":
-		return &stdioReadWriteCloser{}, nil
+		return fio.Glue2(os.Stdin, os.Stdout), nil
 
 	case "fifo":
 		return os.OpenFile(c.Output.Device, os.O_RDWR, os.ModeNamedPipe)

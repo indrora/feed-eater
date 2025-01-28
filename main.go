@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"math/rand/v2"
 	"os"
 
 	"github.com/indrora/feed-eater/config"
+	fio "github.com/indrora/feed-eater/io"
 	"github.com/sunshineplan/limiter"
 )
 
@@ -26,25 +28,57 @@ var (
 )
 
 func main() {
+	configPath := "config.toml"
+	if len(os.Args) > 1 {
+		configPath = os.Args[1]
+	}
 
 	limits := limiter.New(3000 / 8)
 	limits.SetBurst(1)
 
-	slowIO := limits.Writer(os.Stdout)
-
-	conf, err := config.LoadConfig("config.toml")
+	conf, err := config.LoadConfig(configPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	var output io.Writer
+
+	output, err = conf.GetOutput()
+
+	if conf.General.Slow && conf.General.SpeedLimit > 0 {
+		limits.SetLimit(limiter.Limit(conf.General.SpeedLimit))
+		output = limits.Writer(output)
+	}
+	if conf.Output.FilterTTY {
+		output = fio.NewTTYConverter(output)
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+writeout:
+
+	sources := conf.Sources
+
+	if conf.General.Shuffle {
+		// shuffle the set of sources
+		rand.Shuffle(len(sources), func(i, j int) { sources[i], sources[j] = sources[j], sources[i] })
+	}
+
 	for _, source := range conf.Sources {
+		if source.Inhibit {
+			continue
+		}
 		if source.Impl != nil {
-			fmt.Println(source.Name)
-			(*source.Impl).Print(slowIO)
+			(*source.Impl).Print(output)
 		}
 		idx := rand.UintN(uint(len(dividers)))
-		fmt.Fprint(slowIO, "\n\n\n"+dividers[idx]+"\n\n\n")
+		fmt.Fprint(output, "\n\n\n"+dividers[idx]+"\n\n\n")
+	}
 
+	if conf.General.Loop {
+		goto writeout
 	}
 
 }

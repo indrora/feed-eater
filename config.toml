@@ -1,40 +1,71 @@
 [general]
+slow = false
+speed_limit = 32
+loop = true 
+shuffle = false 
+
+[output]
+type="stdio"
+device="stdout"
+mode=""
+filter_tty = false 
+
 
 [[sources]]
 type = "rssfeed"
 name = "reddit news"
-[sources.options]
-url = "https://www.reddit.com/r/news.rss"
+options.url = "https://www.reddit.com/r/news.rss"
+options.fields = "title, date"
+ignore = true 
+
+[[sources]]
+type="rssfeed"
+name = "BBC World News"
+options.url = "http://feeds.bbci.co.uk/news/world/rss.xml"
+ignore = true 
 
 [[sources]]
 type = "rssfeed"
 name = "Slashdot"
-[sources.options]
-url = "http://rss.slashdot.org/Slashdot/slashdotMain"
-fields = "title,description"
+options.url = "http://rss.slashdot.org/Slashdot/slashdotMain"
+options.fields = "title"
+ignore = true 
+
+[[sources]]
+type = "rssfeed"
+name = "Yahoo latest news and headlines"
+options.url = "https://news.yahoo.com/rss/mostviewed"
+
+[[sources]]
+type = "rssfeed"
+name = "Phys.org Science and Technology News"
+options.url = "https://phys.org/rss-feed/"
 
 
 [[sources]]
 type = "textfile"
 name = "The configuration"
-[sources.options]
-filepath = "config.toml"
+options.filepath = "config.toml"
+ignore = true 
+
+[[sources]]
+type = "textfile"
+options.filepath = "./art/"
 
 [[sources]]
 name  = "SeaTac International Airport weather report"
 type = "weather"
-[sources.options]
-station  = "KSEA"
+options.station  = "KSEA"
 
 [[sources]]
 name = "Washington state weather alerts"
 type = "weatheralert"
-[sources.options]
-state = "WA"
+options.state = "WA"
+ignore = true 
 
 
 [[sources]]
 name = "fortune"
 type = "command"
-[sources.options]
-command = "fortune"
+options.command = "fortune"
+ignore = true 
