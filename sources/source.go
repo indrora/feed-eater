@@ -24,6 +24,8 @@ func NewSource(sourceType string, config map[string]string) (*DataSource, error)
 		source = &RSSFeed{}
 	case "weather":
 		source = &WeatherReport{}
+	case "weatheralert":
+		source = &WeatherAlert{}
 	case "textfile":
 		source = &TextFile{}
 	case "command":

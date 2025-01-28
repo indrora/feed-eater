@@ -3,10 +3,26 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"os"
 
 	"github.com/indrora/feed-eater/config"
 	"github.com/sunshineplan/limiter"
+)
+
+var (
+	dividers = []string{
+		"================================================",
+		".:*~*:._.:*~*:._.:*~*:._.:*~*:._.:*~*:._.:*~*:._.:*~*:._.:*~*:.",
+		"=^..^=   =^..^=   =^..^=    =^..^=    =^..^=    =^..^=    =^..^=",
+		"_,.-'~'-.,__,.-'~'-.,__,.-'~'-.,__,.-'~'-.,__,.-'~'-.,_",
+		".oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.",
+		"-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-=x=-",
+		"pdbqpdbqpdbqpdbqpdbqpdbqpdbqpdbqpdbqpdbqpdbqpdbqpdbqpdbqpdbqp",
+		`  .--.      .-'.      .--.      .--.      .--.      .--.      .--.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      '--'      '.-'      '--'      '--'      '--'      '--'      '--'      '`,
+	}
 )
 
 func main() {
@@ -26,6 +42,9 @@ func main() {
 			fmt.Println(source.Name)
 			(*source.Impl).Print(slowIO)
 		}
+		idx := rand.UintN(uint(len(dividers)))
+		fmt.Fprint(slowIO, "\n\n\n"+dividers[idx]+"\n\n\n")
+
 	}
 
 }

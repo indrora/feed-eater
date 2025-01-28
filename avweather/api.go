@@ -37,7 +37,7 @@ func GetObservations(where string, hours int) (Observations, error) {
 
 type Wind struct {
 	Direction string
-	Speed     float64
+	Speed     int
 }
 
 func degreesToCardinal(degrees float64) string {
@@ -48,7 +48,14 @@ func degreesToCardinal(degrees float64) string {
 
 func (o Observation) GetWind() Wind {
 
-	spd := float64(*(o.Wspd))
+	if o.Wspd == nil {
+		return Wind{
+			Direction: "Calm",
+			Speed:     0,
+		}
+	}
+
+	spd := *(o.Wspd)
 	if spd == 0 {
 		return Wind{
 			Direction: "Calm",

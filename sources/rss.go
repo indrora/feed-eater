@@ -3,15 +3,26 @@ package sources
 import (
 	"fmt"
 	"io"
+	"strings"
 
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/mmcdole/gofeed"
 )
 
 // RSSFeed implements the Source interface for RSS feeds
 type RSSFeed struct {
 	rssFeedURL string
+	fields     []string
 	parser     *gofeed.Parser
 }
+
+const (
+	fieldTitle       = "title"
+	fieldDate        = "date"
+	fieldAuthor      = "author"
+	fieldDescription = "description"
+	fieldLink        = "link"
+)
 
 func (r *RSSFeed) Print(writer io.Writer) {
 	feed, err := r.parser.ParseURL(r.rssFeedURL)
@@ -23,9 +34,42 @@ func (r *RSSFeed) Print(writer io.Writer) {
 	fmt.Fprintf(writer, "Headlines from: %s\n", feed.Title)
 	fmt.Fprintf(writer, "Updated on %s\n", feed.Published)
 	for _, item := range feed.Items {
-		fmt.Fprintf(writer, "%v: %s\n", item.Published, item.Title)
+		for _, field := range r.fields {
+			fmt.Fprintf(writer, "%s:\t %s\n", field, getArticleField(item, field))
+		}
+
 	}
 
+}
+
+func getArticleField(item *gofeed.Item, field string) string {
+	switch field {
+	case fieldTitle:
+		return item.Title
+	case fieldDate:
+		return item.Published
+	case fieldAuthor:
+		authors := ""
+		for idx, author := range item.Authors {
+			authors += author.Name
+			if idx < len(item.Authors)-1 {
+				authors += ", "
+			}
+		}
+		return authors
+	case fieldDescription:
+
+		rval := item.Description
+
+		if rval == "" {
+			rval = item.Content
+		}
+
+		rval = bluemonday.StrictPolicy().Sanitize(rval)
+		return rval
+	default:
+		return ""
+	}
 }
 
 func (r *RSSFeed) Configure(config map[string]string) error {
@@ -36,6 +80,17 @@ func (r *RSSFeed) Configure(config map[string]string) error {
 	if !ok {
 		return fmt.Errorf("url is required")
 	}
+	fields, ok := config["fields"]
+	if !ok {
+		r.fields = []string{"title", "date", "author"}
+	} else {
+		aFields := strings.Split(fields, ",")
+		for i := range aFields {
+			aFields[i] = strings.TrimSpace(aFields[i])
+		}
+		r.fields = aFields
+	}
+
 	r.rssFeedURL = url
 	return nil
 }

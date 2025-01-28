@@ -7,6 +7,14 @@ name = "reddit news"
 url = "https://www.reddit.com/r/news.rss"
 
 [[sources]]
+type = "rssfeed"
+name = "Slashdot"
+[sources.options]
+url = "http://rss.slashdot.org/Slashdot/slashdotMain"
+fields = "title,description"
+
+
+[[sources]]
 type = "textfile"
 name = "The configuration"
 [sources.options]
@@ -17,6 +25,13 @@ name  = "SeaTac International Airport weather report"
 type = "weather"
 [sources.options]
 station  = "KSEA"
+
+[[sources]]
+name = "Washington state weather alerts"
+type = "weatheralert"
+[sources.options]
+state = "WA"
+
 
 [[sources]]
 name = "fortune"
