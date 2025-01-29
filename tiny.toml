@@ -1,0 +1,22 @@
+[general]
+slow = true
+speed_limit = 45
+loop = false 
+
+[output]
+type="serial"
+device="/dev/tty.usbmodemNT20091014001"
+mode="9600 8N1"
+filter_tty = true
+
+[[sources]]
+type = "rssfeed"
+name = "Slashdot"
+options.url = "http://rss.slashdot.org/Slashdot/slashdotMain"
+options.fields = "title"
+
+
+[[sources]]
+name  = "SeaTac International Airport weather report"
+type = "weather"
+options.station  = "KSEA"

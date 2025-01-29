@@ -118,9 +118,13 @@ func (c *Config) GetOutput() (io.ReadWriteCloser, error) {
 	case "serial":
 		mode, err := parseSerialMode(c.Output.Mode)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to parse: %v", err)
 		}
-		return serial.Open(c.Output.Device, &mode)
+		k, err := serial.Open(c.Output.Device, &mode)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open serial port: %v", err)
+		}
+		return k, nil
 
 	case "stdio":
 		return fio.Glue2(os.Stdin, os.Stdout), nil

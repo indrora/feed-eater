@@ -39,7 +39,7 @@ func (t *TTYConverter) initDefaultMappings() {
 		'—':  "--",
 		'¡':  "!",
 		'¿':  "?",
-		'\n': "\n",
+		'\n': "\r\n",
 		'\r': "\r",
 	}
 }

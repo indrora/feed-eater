@@ -45,16 +45,16 @@ func main() {
 
 	output, err = conf.GetOutput()
 
+	if err != nil {
+		panic(err)
+	}
+
 	if conf.General.Slow && conf.General.SpeedLimit > 0 {
 		limits.SetLimit(limiter.Limit(conf.General.SpeedLimit))
 		output = limits.Writer(output)
 	}
 	if conf.Output.FilterTTY {
 		output = fio.NewTTYConverter(output)
-	}
-
-	if err != nil {
-		panic(err)
 	}
 
 writeout:
@@ -66,6 +66,8 @@ writeout:
 		rand.Shuffle(len(sources), func(i, j int) { sources[i], sources[j] = sources[j], sources[i] })
 	}
 
+	output.Write([]byte("\r\n\r\n\n"))
+
 	for _, source := range conf.Sources {
 		if source.Inhibit {
 			continue
@@ -74,7 +76,7 @@ writeout:
 			(*source.Impl).Print(output)
 		}
 		idx := rand.UintN(uint(len(dividers)))
-		fmt.Fprint(output, "\n\n\n"+dividers[idx]+"\n\n\n")
+		fmt.Fprint(output, "\r\n\r\n\n"+dividers[idx]+"\r\n\n\r\n")
 	}
 
 	if conf.General.Loop {
